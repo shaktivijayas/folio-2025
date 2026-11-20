@@ -66,7 +66,9 @@ export class LandingArea extends Area
         const widthScale = targetWidth / newWidth
         geometry.translate(- (geometry.boundingBox.max.x + geometry.boundingBox.min.x) * 0.5, - geometry.boundingBox.min.y, -0.23)
 
-        const material = references[0].material.clone()
+        const material = new MeshDefaultMaterial({
+            colorNode: color('#ffffff'),
+        })
         const title = new THREE.Mesh(geometry, material)
         title.name = 'shaktiVijayTitle'
         title.position.copy(center)
