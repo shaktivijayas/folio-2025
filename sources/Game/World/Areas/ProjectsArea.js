@@ -4,7 +4,7 @@ import { InteractivePoints } from '../../InteractivePoints.js'
 import gsap from 'gsap'
 import projectsData from '../../../data/projects.js'
 import { TextCanvas } from '../../TextCanvas.js'
-import { add, color, float, Fn, If, luminance, mix, mul, normalWorld, positionGeometry, sin, step, texture, uniform, uv, vec3, vec4 } from 'three/tsl'
+import { add, color, float, Fn, If, luminance, max, mix, mul, normalWorld, positionGeometry, sin, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 import { Inputs } from '../../Inputs/Inputs.js'
 import { MeshDefaultMaterial } from '../../Materials/MeshDefaultMaterial.js'
 import { Area } from './Area.js'
@@ -342,11 +342,46 @@ export class ProjectsArea extends Area
         this.images.animationProgress = uniform(0)
         this.images.animationDirection = uniform(0)
 
+        // Aspect ratios (width / height) used to letterbox images inside the frame without stretching
+        this.images.frameAspect = this.images.width / this.images.height
+        this.images.aspectOld = uniform(this.images.frameAspect)
+        this.images.aspectNew = uniform(this.images.frameAspect)
+        this.images.letterboxColor = color('#1c1c22')
+
+        this.images.getAspect = (tex) =>
+        {
+            const image = tex.image
+            return image && image.width && image.height ? image.width / image.height : this.images.frameAspect
+        }
+
         // Mesh
         this.images.mesh = this.references.items.get('images')[0]
         this.images.mesh.receiveShadow = true
         this.images.mesh.castShadow = false
         this.images.mesh.visible = false // Wait for first load to display
+
+        // Copy a texture into a target, reallocating the GPU texture when the size changes
+        // (the renderer allocates fixed-size storage once, so a differently sized image would fail to upload)
+        this.images.copyTexture = (target, source) =>
+        {
+            const targetImage = target.image
+            const sourceImage = source.image
+
+            if(
+                targetImage && sourceImage &&
+                (targetImage.width !== sourceImage.width || targetImage.height !== sourceImage.height)
+            )
+                target.dispose()
+
+            target.copy(source)
+            target.needsUpdate = true
+
+            // Keep the matching aspect uniform in sync
+            if(target === this.images.textureNew)
+                this.images.aspectNew.value = this.images.getAspect(source)
+            else if(target === this.images.textureOld)
+                this.images.aspectOld.value = this.images.getAspect(source)
+        }
 
         // Finishing initiating and use first image as default resource
         this.images.init = (key) =>
@@ -358,6 +393,19 @@ export class ProjectsArea extends Area
 
             this.images.textureOld = resource.texture.clone()
             this.images.textureNew = resource.texture.clone()
+            this.images.aspectOld.value = this.images.getAspect(resource.texture)
+            this.images.aspectNew.value = this.images.getAspect(resource.texture)
+
+            // Sample a texture "contained" in the frame (keeps proportions, fills the rest with the letterbox color)
+            const sampleContained = (tex, uvNode, aspectUniform) =>
+            {
+                const ratio = aspectUniform.div(this.images.frameAspect) // > 1 means wider than the frame
+                const scale = vec2(max(ratio.reciprocal(), 1), max(ratio, 1))
+                const fittedUv = uvNode.sub(0.5).mul(scale).add(0.5)
+                const inside = step(0, fittedUv.x).mul(step(fittedUv.x, 1)).mul(step(0, fittedUv.y)).mul(step(fittedUv.y, 1))
+
+                return mix(this.images.letterboxColor, texture(tex, fittedUv).rgb, inside)
+            }
 
             // Color node
             const colorNode = Fn(() =>
@@ -370,8 +418,8 @@ export class ProjectsArea extends Area
                 uvOld.x.addAssign(this.images.animationProgress.mul(0.25).mul(this.images.animationDirection))
 
                 // Textures
-                const textureOldColor = texture(this.images.textureOld, uvOld).rgb
-                const textureNewColor = texture(this.images.textureNew, uvNew).rgb
+                const textureOldColor = sampleContained(this.images.textureOld, uvOld, this.images.aspectOld).toVar()
+                const textureNewColor = sampleContained(this.images.textureNew, uvNew, this.images.aspectNew).toVar()
 
                 // Load mix
                 textureNewColor.assign(mix(color('#333333'), textureNewColor, this.images.loadProgress))
@@ -423,7 +471,7 @@ export class ProjectsArea extends Area
             if(this.navigation.current.images[this.images.index] === key)
             {
                 const resource = this.images.getResourceAndLoad(key)
-                this.images.textureNew.copy(resource.texture)
+                this.images.copyTexture(this.images.textureNew, resource.texture)
                 this.images.textureNew.needsUpdate = true
                 gsap.to(this.images.loadProgress, { value: 1, duration: 1, overwrite: true })
 
@@ -531,12 +579,12 @@ export class ProjectsArea extends Area
             // Update textures
             if(this.images.initiated)
             {
-                this.images.textureOld.copy(this.images.textureNew)
+                this.images.copyTexture(this.images.textureOld, this.images.textureNew)
                 this.images.textureOld.needsUpdate = true
 
                 if(resource.loaded)
                 {
-                    this.images.textureNew.copy(resource.texture)
+                    this.images.copyTexture(this.images.textureNew, resource.texture)
                     this.images.textureNew.needsUpdate = true
                 }
             }
