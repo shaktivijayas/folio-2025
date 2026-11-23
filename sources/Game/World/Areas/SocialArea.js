@@ -36,13 +36,37 @@ export class SocialArea extends Area
         const radius = 6
         let i = 0
 
+        // Logo statue positions relative to the area center (x, z), from the 3D model
+        const statueOffsets = {
+            x: [ 7.87, -0.02 ],
+            bluesky: [ 7.10, -3.25 ],
+            youtube: [ 4.92, -6.12 ],
+            mail: [ 1.73, -7.09 ],
+            twitch: [ -1.74, -7.72 ],
+            gitHub: [ -4.90, -6.13 ],
+            linkedIn: [ -7.10, -3.40 ],
+            discord: [ -7.81, -0.05 ]
+        }
+
         for(const link of socialData)
         {
-            const angle = i * Math.PI / (socialData.length - 1)
+            // Sit in front of the link's statue (fall back to even spacing)
+            const offset = statueOffsets[link.statue]
+            const angle = offset
+                ? Math.atan2(- offset[1], offset[0])
+                : i * Math.PI / (socialData.length - 1)
             const position = this.center.clone()
             position.x += Math.cos(angle) * radius
             position.y = 1
             position.z -= Math.sin(angle) * radius
+
+            // Central statue: sit just in front of its pedestal (the side facing the camera)
+            if(link.statue === 'center')
+            {
+                position.copy(this.center)
+                position.y = 1
+                position.z += 3.2
+            }
 
             this.interactivePoint = this.game.interactivePoints.create(
                 position,
