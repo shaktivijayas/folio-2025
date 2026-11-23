@@ -473,11 +473,13 @@ export class LabArea extends Area
                     (loadedTexture) =>
                     {
                         resource.texture = loadedTexture
-                        resource.colorSpace = THREE.SRGBColorSpace
-                        resource.flipY = false
-                        resource.magFilter = THREE.LinearFilter
-                        resource.minFilter = THREE.LinearFilter
-                        resource.generateMipmaps = false
+                        loadedTexture.colorSpace = THREE.SRGBColorSpace
+                        // The lab screen uses the same UV convention as the original KTX textures.
+                        loadedTexture.flipY = false
+                        loadedTexture.magFilter = THREE.LinearFilter
+                        loadedTexture.minFilter = THREE.LinearFilter
+                        loadedTexture.generateMipmaps = false
+                        loadedTexture.needsUpdate = true
 
                         resource.loaded = true
                         
@@ -839,7 +841,8 @@ export class LabArea extends Area
                         if(mini.startedLoading)
                             return
 
-                        const loader = this.game.resourcesLoader.getLoader('textureKtx')
+                        const isImage = /\.(png|jpe?g)$/i.test(project.imageMini)
+                        const loader = this.game.resourcesLoader.getLoader(isImage ? 'texture' : 'textureKtx')
 
                         loader.load(
                             `lab/images/${project.imageMini}`,
