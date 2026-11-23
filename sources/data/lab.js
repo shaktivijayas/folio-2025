@@ -1,74 +1,59 @@
+// Skills Lab: one entry per skill domain.
+// `tools`, `proof` and `accent` feed scripts/generate-skills-images.js, which renders `image` and `imageMini`.
+// After editing this file, run: node scripts/generate-skills-images.js
 export default [
     {
-        title: 'Shakti Vijay',
-        url: 'https://github.com/shaktivijayas/shaktivijayas',
-        image: 'shakti-lab-shaktivijayas.png',
-        imageMini: 'shakti-lab-shaktivijayas.png'
-    },
-    {
-        title: 'Envora',
-        url: 'https://github.com/shaktivijayas/envora',
-        image: 'shakti-lab-envora.png',
-        imageMini: 'shakti-lab-envora.png'
-    },
-    {
-        title: 'Drive Portfolio',
-        url: 'https://github.com/shaktivijayas/Portfolio_',
-        image: 'shakti-lab-portfolio-drive.png',
-        imageMini: 'shakti-lab-portfolio-drive.png'
-    },
-    {
-        title: 'ZONE Admin',
-        url: 'https://github.com/shaktivijayas/zone-admin',
-        image: 'shakti-lab-zone-admin.png',
-        imageMini: 'shakti-lab-zone-admin.png'
-    },
-    {
-        title: 'Library App',
-        url: 'https://github.com/shaktivijayas/library-app',
-        image: 'shakti-lab-library-app.png',
-        imageMini: 'shakti-lab-library-app.png'
-    },
-    {
-        title: 'ZONE Backend',
-        url: 'https://github.com/shaktivijayas/zone-backend',
-        image: 'shakti-lab-zone-backend.png',
-        imageMini: 'shakti-lab-zone-backend.png'
-    },
-    {
-        title: 'Portfolio',
-        url: 'https://github.com/shaktivijayas/portfolio',
-        image: 'shakti-lab-portfolio.png',
-        imageMini: 'shakti-lab-portfolio.png'
-    },
-    {
-        title: 'Nautical Acoustic Monitor',
-        url: 'https://github.com/shaktivijayas/Nautical-Acoustic-Monitor',
-        image: 'shakti-lab-nautical.png',
-        imageMini: 'shakti-lab-nautical.png'
-    },
-    {
-        title: 'GEN-AI and LLM',
-        url: 'https://github.com/shaktivijayas/GEN-AI-and-LLM',
-        image: 'shakti-lab-gen-ai.png',
-        imageMini: 'shakti-lab-gen-ai.png'
-    },
-    {
-        title: 'WRAITH',
+        title: 'AI / ML & LLMs',
         url: 'https://github.com/shaktivijayas/WRAITH',
-        image: 'shakti-lab-wraith.png',
-        imageMini: 'shakti-lab-wraith.png'
+        accent: '#b388ff',
+        tools: [ 'Python', 'PyTorch', 'Reinforcement Learning', 'GRPO', 'Unsloth', 'TRL', 'Gemma', 'Gemini', 'RAG', 'OpenEnv' ],
+        proof: [ 'WRAITH', 'Aegis', 'OmniMind', 'KAIROS' ],
+        image: 'skills-ai-ml.png',
+        imageMini: 'skills-ai-ml-mini.png'
     },
     {
-        title: 'ZEUS',
+        title: 'Backend & APIs',
+        url: 'https://github.com/shaktivijayas/kairos',
+        accent: '#4dd0e1',
+        tools: [ 'FastAPI', 'Flask', 'Node.js', 'Express', 'REST APIs', 'Prisma', 'PostgreSQL', 'MongoDB' ],
+        proof: [ 'KAIROS', 'GradePath', 'AuthentiQ' ],
+        image: 'skills-backend.png',
+        imageMini: 'skills-backend-mini.png'
+    },
+    {
+        title: 'Frontend & Web',
+        url: 'https://github.com/shaktivijayas/echomood',
+        accent: '#ff8a65',
+        tools: [ 'React', 'TypeScript', 'JavaScript', 'HTML / CSS', 'Phaser' ],
+        proof: [ 'echomood', 'Shot Architect', 'WRAITH' ],
+        image: 'skills-frontend.png',
+        imageMini: 'skills-frontend-mini.png'
+    },
+    {
+        title: 'Mobile',
         url: 'https://github.com/shaktivijayas/ZEUS',
-        image: 'shakti-lab-zeus.png',
-        imageMini: 'shakti-lab-zeus.png'
+        accent: '#69f0ae',
+        tools: [ 'Flutter', 'Dart', 'Riverpod', 'Firebase' ],
+        proof: [ 'ZEUS', 'ZONE' ],
+        image: 'skills-mobile.png',
+        imageMini: 'skills-mobile-mini.png'
     },
     {
-        title: 'DAV Lab',
-        url: 'https://github.com/shaktivijayas/DAV-Lab',
-        image: 'shakti-lab-dav-lab.png',
-        imageMini: 'shakti-lab-dav-lab.png'
+        title: 'DevOps & Tooling',
+        url: 'https://github.com/shaktivijayas/DevForge',
+        accent: '#ffd54f',
+        tools: [ 'Docker', 'Docker Compose', 'Dev Containers', 'Git', 'CLI tools', 'Commander' ],
+        proof: [ 'DevForge', 'Envora', 'echomood' ],
+        image: 'skills-devops.png',
+        imageMini: 'skills-devops-mini.png'
+    },
+    {
+        title: 'Cloud, Data & Edge',
+        url: 'https://github.com/shaktivijayas/Nautical-Acoustic-Monitor',
+        accent: '#f06292',
+        tools: [ 'Oracle Integration Cloud', 'Raspberry Pi', 'Signal processing', 'Anomaly detection', 'Data visualisation' ],
+        proof: [ 'Nautical Acoustic Monitor', 'DAV Lab', 'ChainSys internship' ],
+        image: 'skills-cloud-edge.png',
+        imageMini: 'skills-cloud-edge-mini.png'
     }
 ]
