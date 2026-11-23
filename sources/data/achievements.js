@@ -26,7 +26,7 @@ export default
     [
         'lab',
         'I\'m a bit of a scientist myself',
-        'Check every project in the <strong>lab</strong> area.',
+        'Check every skill in the <strong>lab</strong> area.',
         labData.length,
         true // Unique
     ],
