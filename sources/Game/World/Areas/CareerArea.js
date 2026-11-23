@@ -7,6 +7,63 @@ import { Area } from './Area.js'
 
 export class CareerArea extends Area
 {
+    // Pixel size of the label textures the 3D model was built for
+    static LABEL_ORIGINAL_SIZES = {
+        careerFreelancer: [ 240, 60 ],
+        careerHetic: [ 316, 60 ],
+        careerImmersiveGarden: [ 340, 60 ],
+        careerIRLTeacher: [ 268, 92 ],
+        careerOnlineTeacher: [ 332, 92 ],
+        careerUzik: [ 168, 60 ]
+    }
+
+    // Stretch a label mesh horizontally (keeping its start edge in place) so a resized texture keeps its proportions
+    fitLabelToTexture(mesh, textureName, labelTexture)
+    {
+        const originalSize = CareerArea.LABEL_ORIGINAL_SIZES[textureName]
+        const image = labelTexture?.image
+
+        if(!mesh || !originalSize || !image?.width || !image?.height)
+            return
+
+        const ratio = (image.width / image.height) / (originalSize[0] / originalSize[1])
+
+        if(Math.abs(ratio - 1) < 0.01)
+            return
+
+        const geometry = mesh.geometry.clone()
+        const positions = geometry.attributes.position
+        const uvs = geometry.attributes.uv
+
+        // Horizontal axis = the one with the largest extent
+        geometry.computeBoundingBox()
+        const extent = new THREE.Vector3().subVectors(geometry.boundingBox.max, geometry.boundingBox.min)
+        const axis = extent.x >= extent.y && extent.x >= extent.z ? 0 : (extent.y >= extent.z ? 1 : 2)
+
+        // Anchor = where the text starts (u = 0)
+        let anchor = 0
+        let minU = Infinity
+        for(let i = 0; i < positions.count; i++)
+        {
+            if(uvs.getX(i) < minU)
+            {
+                minU = uvs.getX(i)
+                anchor = positions.getComponent(i, axis)
+            }
+        }
+
+        for(let i = 0; i < positions.count; i++)
+        {
+            const value = positions.getComponent(i, axis)
+            positions.setComponent(i, axis, anchor + (value - anchor) * ratio)
+        }
+
+        positions.needsUpdate = true
+        geometry.computeBoundingBox()
+        geometry.computeBoundingSphere()
+        mesh.geometry = geometry
+    }
+
     constructor(references)
     {
         super(references)
@@ -98,6 +155,7 @@ export class CareerArea extends Area
 
             {
                 line.textMesh = line.stone.children.find(child => child.name.startsWith('careerText'))
+                this.fitLabelToTexture(line.textMesh, line.group.userData.texture, line.texture)
 
                 const material = new THREE.MeshLambertNodeMaterial({ transparent: true })
                 
@@ -155,8 +213,16 @@ export class CareerArea extends Area
         this.year.originZ = this.year.group.position.z
         this.year.size = 17
         this.year.offsetTarget = 0
-        this.year.start = 2008
+        this.year.start = 2024
+        this.year.end = 2026
         this.year.current = this.year.start
+
+        // Spread the year range evenly over the whole path
+        this.year.fromOffset = (offset) =>
+        {
+            const span = this.year.end - this.year.start + 1
+            return Math.min(this.year.end, this.year.start + Math.floor(offset / this.year.size * span))
+        }
 
         //    Digit indexes
         //
@@ -365,7 +431,7 @@ export class CareerArea extends Area
         const finalPositionZ = this.year.originZ - this.year.offsetTarget
         this.year.group.position.z += (finalPositionZ - this.year.group.position.z) * this.game.ticker.deltaScaled * 10
 
-        const yearCurrent = this.year.start + Math.floor(this.year.offsetTarget)
+        const yearCurrent = this.year.fromOffset(this.year.offsetTarget)
 
         if(yearCurrent !== this.year.current)
         {
