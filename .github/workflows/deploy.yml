@@ -25,7 +25,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # vite-plugin-restart (dev-only) declares an outdated vite peer range
+      - run: npm ci --legacy-peer-deps
       - run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
